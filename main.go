@@ -7,6 +7,7 @@ import (
 	"image/jpeg"
 	"log"
 	"os"
+	"time"
 
 	"github.com/valyala/gozstd"
 )
@@ -14,7 +15,7 @@ import (
 func main() {
 	imgFile := "./images/beautiful-ultra-hd-wallpapers-for-desktop-4k.jpg"
 
-	imgByte, err := readImageFile(imgFile)
+	imgByte, imgFileExtension, err := readImageFile(imgFile)
 
 	if err != nil {
 		panic(err)
@@ -29,8 +30,10 @@ func main() {
 
 	decompressedImg, _, _ := image.Decode(bytes.NewReader(decompressedData))
 
+	newImgFile := fmt.Sprintf("compressed-%d.%s", time.Now().Unix(), imgFileExtension)
+
 	//save the imgByte to file
-	out, err := os.Create("./images/compressed.jpg")
+	out, err := os.Create("./output/" + newImgFile)
 
 	if err != nil {
 		panic(err)
@@ -41,17 +44,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println("File successfully written")
 }
 
-func readImageFile(imgFile string) ([]byte, error) {
+func readImageFile(imgFile string) ([]byte, string, error) {
 
 	existingImageFile, err := os.Open(imgFile)
 
 	if err != nil {
 		// just panic
-		return nil, err
+		return nil, "", err
 	}
 
 	defer existingImageFile.Close()
@@ -59,7 +61,7 @@ func readImageFile(imgFile string) ([]byte, error) {
 	imageData, imageType, err := image.Decode(existingImageFile)
 	if err != nil {
 		// Handle error
-		return nil, err
+		return nil, "", err
 	}
 
 	log.Print(imageType)
@@ -68,8 +70,8 @@ func readImageFile(imgFile string) ([]byte, error) {
 	err = jpeg.Encode(buf, imageData, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return buf.Bytes(), err
+	return buf.Bytes(), imageType, err
 }

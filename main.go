@@ -44,15 +44,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Println("File successfully written")
+
 }
 
 func readImageFile(imgFile string) ([]byte, string, error) {
-
 	existingImageFile, err := os.Open(imgFile)
 
 	if err != nil {
-		// just panic
 		return nil, "", err
 	}
 
@@ -60,11 +60,8 @@ func readImageFile(imgFile string) ([]byte, string, error) {
 
 	imageData, imageType, err := image.Decode(existingImageFile)
 	if err != nil {
-		// Handle error
 		return nil, "", err
 	}
-
-	log.Print(imageType)
 
 	buf := new(bytes.Buffer)
 	err = jpeg.Encode(buf, imageData, nil)
